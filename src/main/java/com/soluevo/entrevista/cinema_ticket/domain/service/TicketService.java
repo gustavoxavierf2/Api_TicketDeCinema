@@ -20,10 +20,14 @@ public class TicketService {
     @Autowired
     TicketRepository db;
 
+    @Autowired
+    TicketMapper ticketMapper;
+
     public TicketResponse getTicketDto(Long id){
         Optional<Ticket> ticket = db.findById(id);
+       
         if (ticket.isPresent()) {
-            return TicketMapper.toTicketResponse(ticket.get());
+            return ticketMapper.toTicketResponse(ticket.get());
         }else{
             throw new IdException("O ticket não foi encontrado.", 404);
         } 
@@ -34,7 +38,7 @@ public class TicketService {
         List<TicketResponse> response = new ArrayList<>();
         if (!tickets.isEmpty()) {
             for (Ticket ticket : tickets) {
-                response.add(TicketMapper.toTicketResponse(ticket));
+                response.add(ticketMapper.toTicketResponse(ticket));
             }
             return response;
         }else{
@@ -43,17 +47,23 @@ public class TicketService {
     }
 
     public TicketResponse creatDto(TicketRequest request){
-        Ticket ticket = TicketMapper.toTicket(request);
-        db.save(ticket);
-        return TicketMapper.toTicketResponse(ticket);
+        Ticket ticket = ticketMapper.toTicket(request);
+        if (ticket != null) {
+            db.save(ticket);
+            return ticketMapper.toTicketResponse(ticket);
+        }else{
+            throw new RuntimeException("Error na transformação dos dados");
+        }
+       
+        
     }
 
     public TicketResponse editDto(TicketRequest request){
         Optional<Ticket> ticketResponse = db.findById(request.getId());
         if (ticketResponse.isPresent()) {
-                Ticket ticket = TicketMapper.toTicket(request);
+                Ticket ticket = ticketMapper.toTicket(request);
                 db.save(ticket);
-                return TicketMapper.toTicketResponse(ticket);
+                return ticketMapper.toTicketResponse(ticket);
         }else{
             throw new IdException("O ticket não foi encontrado.", 404);
         }  
@@ -63,7 +73,7 @@ public class TicketService {
         Optional<Ticket> ticket = db.findById(id);
         if (ticket.isPresent()) {
             db.delete(ticket.get());
-            return TicketMapper.toTicketResponse(ticket.get());
+            return ticketMapper.toTicketResponse(ticket.get());
         }else{
             throw new IdException("O ticket não foi encontrado.", 404);
         } 

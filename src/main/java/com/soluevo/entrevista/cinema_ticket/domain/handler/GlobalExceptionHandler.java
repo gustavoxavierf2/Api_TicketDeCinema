@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import com.soluevo.entrevista.cinema_ticket.domain.handler.exception.IdException;
-import com.soluevo.entrevista.cinema_ticket.domain.handler.exception.NoDataException;
 
 import jakarta.validation.ConstraintViolationException;
 
@@ -26,16 +24,6 @@ public class GlobalExceptionHandler {
                     "\n\t\"ticketType\": \"String\"," +
                     "\n\t\"seat\": \"String\"" +
                     "\n}";
-
-    @ExceptionHandler(IdException.class)
-    public ResponseEntity<Object> handlerIdException(IdException ex, Integer errorCode){
-        return ResponseEntity.status(errorCode).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(NoDataException.class)
-    public ResponseEntity<Object> handlerNoDataException(NoDataException ex, Integer errorCode){
-        return ResponseEntity.status(errorCode).body(ex.getMessage());
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {

@@ -22,7 +22,7 @@ public class TicketRequest {
     @NotBlank String cinemaName; 
     @NotBlank String movieName; 
     @Schema(example = "00:00") @NotNull @JsonFormat(pattern = "HH:mm") LocalTime hour;
-    @Schema(description = "Data da sessão no formato dd/MM/yyyy", example = "01/01/2000") @NotNull @JsonFormat(pattern = "dd/MM/yyyy") LocalDate sessionDate; 
+    @NotNull LocalDate sessionDate; 
     @NotNull Integer roomNumber;
     @NotNull Float price; 
     @NotBlank String ticketType; 

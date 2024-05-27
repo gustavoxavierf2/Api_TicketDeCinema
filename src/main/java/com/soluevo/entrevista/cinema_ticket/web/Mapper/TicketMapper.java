@@ -1,9 +1,12 @@
 package com.soluevo.entrevista.cinema_ticket.web.Mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.soluevo.entrevista.cinema_ticket.api.request.TicketRequest;
 import com.soluevo.entrevista.cinema_ticket.api.response.TicketResponse;
 import com.soluevo.entrevista.cinema_ticket.domain.model.Ticket;
 
+@Component
 public class TicketMapper {
     public Ticket toTicket(TicketRequest request){
         Ticket ticket = new Ticket(request.getId(), request.getPersonName(), 

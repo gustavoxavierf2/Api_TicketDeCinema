@@ -3,16 +3,22 @@ package com.soluevo.entrevista.cinema_ticket.serviceTests;
 
 import com.soluevo.entrevista.cinema_ticket.api.request.TicketRequest;
 import com.soluevo.entrevista.cinema_ticket.api.response.TicketResponse;
+import com.soluevo.entrevista.cinema_ticket.domain.handler.serviceException.TicketVazioException;
+import com.soluevo.entrevista.cinema_ticket.domain.handler.serviceException.DtoException;
 import com.soluevo.entrevista.cinema_ticket.domain.model.Ticket;
 import com.soluevo.entrevista.cinema_ticket.domain.repository.TicketRepository;
 import com.soluevo.entrevista.cinema_ticket.domain.service.TicketService;
-import com.soluevo.entrevista.cinema_ticket.domain.handler.exception.IdException;
-import com.soluevo.entrevista.cinema_ticket.domain.handler.exception.NoDataException;
 import com.soluevo.entrevista.cinema_ticket.web.Mapper.TicketMapper;
 
 import java.util.List;
+
+import  org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,15 +30,19 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Optional;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@Tag("CRUD")
 public class ServiceTests {
     @Mock
     private TicketRepository db;
@@ -44,12 +54,17 @@ public class ServiceTests {
     private TicketService ticketService;
 
     
-    private Ticket ticket;
-    private TicketResponse ticketResponse;
+    private static Ticket ticket;
+    private static TicketRequest ticketRequest;
+    private static TicketResponse ticketResponse;
+   
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         ticket = new Ticket(1L, "gustavo", "cinemark", "spider man", LocalTime.of(19, 00),
+                LocalDate.of(2024, 05, 20), 1, 16.00F, "meia", "a6");
+
+        ticketRequest = new TicketRequest(1L, "gustavo", "cinemark", "spider man", LocalTime.of(19, 00),
                 LocalDate.of(2024, 05, 20), 1, 16.00F, "meia", "a6");
 
         ticketResponse = new TicketResponse("gustavo", "cinemark", "spider man", LocalTime.of(19, 00),
@@ -60,6 +75,8 @@ public class ServiceTests {
     class getTicketDto {
 
         @Test
+        @RepeatedTest(2)
+        @DisplayName("buscando ticket com sucesso 2x seguidas")
         void BuscarTicketComSucesso() {
             when(db.findById(1L)).thenReturn(Optional.of(ticket));
             when(ticketMapper.toTicketResponse(ticket)).thenReturn(ticketResponse);
@@ -68,9 +85,9 @@ public class ServiceTests {
 
             assertNotNull(response);
             assertEquals(ticketResponse, response);
-
+            
           
-            verify(db).findById(1L);
+            verify(db, times(1)).findById(1L);
             verify(ticketMapper).toTicketResponse(ticket);
         }
 
@@ -78,7 +95,8 @@ public class ServiceTests {
         void LançarIdExceptionTicketNaoEncontrado() {
             when(db.findById(anyLong())).thenReturn(Optional.empty());
 
-            assertThrows(IdException.class, () -> ticketService.getTicketDto(anyLong()));
+            assertThrows(TicketVazioException.class, () -> ticketService.getTicketDto(anyLong()));
+            
 
             
             verify(db).findById(anyLong());
@@ -109,7 +127,7 @@ public class ServiceTests {
         void LançarNoDataExceptionTicketNaoEncontrado() {
             when(db.findAll()).thenReturn(Collections.emptyList());
 
-            assertThrows(NoDataException.class, () -> ticketService.getTicketAllDto());
+            assertThrows(TicketVazioException.class, () -> ticketService.getTicketAllDto());
 
             
             verify(db).findAll();
@@ -119,18 +137,6 @@ public class ServiceTests {
 
     @Nested
     class creatDto {
-        private TicketRequest ticketRequest;
-        private TicketRequest ticketRequestError;
-
-        @BeforeEach
-        void setUp() {
-            ticketRequest = new TicketRequest(1L, "gustavo", "cinemark", "spider man", LocalTime.of(19, 00),
-                    LocalDate.of(2024, 05, 20), 1, 16.00F, "meia", "a6");
-
-            ticketRequestError = new TicketRequest(1L, "", "", "", null,
-                    null, null, null, "", "");
-        }
-
         @Test
         void CriarTicketComSucesso() {
             when(ticketMapper.toTicket(ticketRequest)).thenReturn(ticket);
@@ -149,13 +155,23 @@ public class ServiceTests {
 
         @Test
         void LançarRuntimeExceptionErroNaTransformaçaoDosDados() {
-            when(ticketMapper.toTicket(ticketRequestError)).thenReturn(null); 
+            when(ticketMapper.toTicket(any())).thenThrow(NullPointerException.class); 
             
 
-            assertThrows(RuntimeException.class, () -> ticketService.creatDto(ticketRequestError));
+            assertThrows(NullPointerException.class, () -> ticketService.creatDto(any()));
 
+            verify(ticketMapper).toTicket(any());
+            verifyNoInteractions(db);
+        }
+
+        @Test
+        void LançarRuntimeExceptionErroNaTransformaçaoDosDados2() {
+            when(ticketMapper.toTicket(any())).thenReturn(null); 
             
-            verify(ticketMapper).toTicket(ticketRequestError);
+
+            assertThrows(DtoException.class, () -> ticketService.creatDto(any()));
+
+            verify(ticketMapper).toTicket(any());
             verifyNoInteractions(db);
         }
     }
@@ -164,8 +180,6 @@ public class ServiceTests {
     class editDto {
         private Ticket ticketEditado;
         private TicketRequest ticketRequest;
-
-        
 
         @BeforeEach
         void setUp() {
@@ -200,7 +214,7 @@ public class ServiceTests {
         void LançarIdExceptionTicketNaoEncontrado() {
             when(db.findById(anyLong())).thenReturn(Optional.empty());
 
-            assertThrows(IdException.class, () -> ticketService.editDto(ticketRequest));
+            assertThrows(TicketVazioException.class, () -> ticketService.editDto(ticketRequest));
 
             
             verify(db).findById(anyLong());
@@ -232,7 +246,19 @@ public class ServiceTests {
         void LançarIdExceptionTicketNaoEncontrado() {
             when(db.findById(anyLong())).thenReturn(Optional.empty());
 
-            assertThrows(IdException.class, () -> ticketService.deleteDto(anyLong()));
+            assertThrows(TicketVazioException.class, () -> ticketService.deleteDto(anyLong()));
+
+            
+            verify(db).findById(anyLong());
+            verifyNoInteractions(ticketMapper);
+        }
+
+        @Test
+        @Disabled
+        void LançarIdExceptionTicketNaoEncontrado2() {
+            when(db.findById(anyLong())).thenReturn(Optional.empty());
+
+            assertThrows(TicketVazioException.class, () -> ticketService.deleteDto(anyLong()));
 
             
             verify(db).findById(anyLong());

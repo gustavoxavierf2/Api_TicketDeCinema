@@ -26,7 +26,7 @@ public class Ticket {
     @Column(nullable = false) String cinemaName; 
     @Column(nullable = false) String movieName; 
     @Column(nullable = false) @JsonFormat(pattern = "HH:mm") LocalTime hour;
-    @Column(nullable = false) @JsonFormat(pattern = "dd/MM/yyyy") LocalDate sessionDate; 
+    @Column(nullable = false) LocalDate sessionDate; 
     @Column(nullable = false) Integer roomNumber;
     @Column(nullable = false) Float price; 
     @Column(nullable = false) String ticketType; 

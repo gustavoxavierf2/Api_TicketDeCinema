@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.soluevo.entrevista.cinema_ticket.api.request.TicketRequest;
 import com.soluevo.entrevista.cinema_ticket.api.response.TicketResponse;
+import com.soluevo.entrevista.cinema_ticket.domain.handler.controllerException.ResponseVazioException;
 import com.soluevo.entrevista.cinema_ticket.domain.service.TicketService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,9 +39,12 @@ public class TicketController {
         @ApiResponse(responseCode = "404", description = "O ticket não foi encontrado."),
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> getTicket(@PathVariable("id") Long id){
+    public ResponseEntity<TicketResponse> getTicket(@PathVariable("id") Long id){ 
         TicketResponse response = ticketService.getTicketDto(id);
-        return ResponseEntity.status(200).body(response);
+        if (response == null) {
+            throw new ResponseVazioException("response vazio");
+        }
+        return ResponseEntity.status(200).body(response); 
     }
 
     @Operation(summary = "Retorna uma lista de tickets", description = "Retorna uma lista de todos os tickets disponíveis.", tags = {"Tickets"})
@@ -51,6 +55,9 @@ public class TicketController {
     @GetMapping()
     public ResponseEntity<List<TicketResponse>> getTicketAll() {
         List<TicketResponse> response = ticketService.getTicketAllDto();
+        if (response == null) {
+            throw new ResponseVazioException("response vazio");
+        }
         return ResponseEntity.status(200).body(response);
     }
 
@@ -61,6 +68,9 @@ public class TicketController {
     @PostMapping
     public ResponseEntity<TicketResponse> createTicket(@Valid @RequestBody TicketRequest request){
         TicketResponse response = ticketService.creatDto(request);
+        if (response == null) {
+            throw new ResponseVazioException("response vazio");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -73,6 +83,9 @@ public class TicketController {
     public ResponseEntity<TicketResponse> editTicket(@Valid @PathVariable("id") Long id, @RequestBody TicketRequest request){
         request.setId(id);
         TicketResponse response = ticketService.editDto(request);
+        if (response == null) {
+            throw new ResponseVazioException("response vazio");
+        }
         return ResponseEntity.status(200).body(response);
     }
 
@@ -84,6 +97,9 @@ public class TicketController {
     @DeleteMapping("/{id}")
     public ResponseEntity<TicketResponse> deleteTicket(@PathVariable("id") Long id){
         TicketResponse response = ticketService.deleteDto(id);
+        if (response == null) {
+            throw new ResponseVazioException("response vazio");
+        }
         return ResponseEntity.status(200).body(response);
     }
 }

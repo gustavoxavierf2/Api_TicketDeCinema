@@ -14,6 +14,8 @@ Ao utilizar esta API, você poderá gerenciar seus tickets de cinema de forma ef
 - Validation
 - Tratamento de Exceções com Handler
 - Springdoc OpenAPI
+- Junit
+- Mock
 
 ## Executando o Projeto
 

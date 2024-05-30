@@ -62,7 +62,7 @@ Agora você está pronto para começar a explorar e gerenciar seus tickets de ci
 
 ## Autor
 
-gustavo xavier farias - guxfarias7@gmail.com
+gustavo xavier farias
 
 ## Licença
 

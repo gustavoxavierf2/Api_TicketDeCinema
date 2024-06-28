@@ -17,6 +17,7 @@ Ao utilizar esta API, você poderá gerenciar seus tickets de cinema de forma ef
 - Springdoc OpenAPI
 - Junit
 - Mock
+- Spring Security
 
 ## Executando o Projeto
 

@@ -1,6 +1,5 @@
 package com.soluevo.entrevista.cinema_ticket.web.controller;
 
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class TicketController {
         @ApiResponse(responseCode = "404", description = "O ticket não foi encontrado."),
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> getTicket(@PathVariable("id") Long id){ 
+    public ResponseEntity<TicketResponse> getTicket(@PathVariable Long id){ 
         TicketResponse response = ticketService.getTicketDto(id);
         if (response == null) {
             throw new ResponseVazioException("response vazio");
@@ -80,7 +79,7 @@ public class TicketController {
         @ApiResponse(responseCode = "404", description = "O ticket não foi encontrado."),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<TicketResponse> editTicket(@Valid @PathVariable("id") Long id, @RequestBody TicketRequest request){
+    public ResponseEntity<TicketResponse> editTicket(@Valid @PathVariable Long id, @RequestBody TicketRequest request){
         request.setId(id);
         TicketResponse response = ticketService.editDto(request);
         if (response == null) {
@@ -95,7 +94,7 @@ public class TicketController {
         @ApiResponse(responseCode = "404", description = "O ticket não foi encontrado.")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<TicketResponse> deleteTicket(@PathVariable("id") Long id){
+    public ResponseEntity<TicketResponse> deleteTicket(@PathVariable Long id){
         TicketResponse response = ticketService.deleteDto(id);
         if (response == null) {
             throw new ResponseVazioException("response vazio");

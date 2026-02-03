@@ -1,71 +1,251 @@
-# Bem-vindo à Minha API de CRUD de Tickets de Cinema!
+# 🎬 Cinema Ticket API
 
-Esta é uma ferramenta que criei para facilitar o gerenciamento de tickets de cinema. Desenvolvi-a com base nas melhores práticas de API RESTful, visando oferecer uma forma simples e direta de lidar com operações básicas como criar, listar, atualizar e excluir tickets.
+> API RESTful para gerenciamento de tickets de cinema desenvolvida com **Spring Boot 3**
 
-Ao utilizar esta API, você poderá gerenciar seus tickets de cinema de forma eficiente, sem complicações desnecessárias.
+## 📋 Sobre o Projeto
 
-## Tecnologias Utilizadas
+Este projeto é uma **API REST completa** para gerenciamento de ingressos de cinema. Ela é responsável por:
 
-- Java
-- Spring Boot
-- Spring Data JPA
-- Lombok
-- MySQL
-- Validation
-- Tratamento de Exceções com Handler
-- Problem details
-- Springdoc OpenAPI
-- Junit
-- Mock
-- Spring Security
+- 🎫 Gerenciar operações **CRUD** de tickets de cinema
+- 🔐 Autenticar usuários com **JWT** (JSON Web Token)
+- 📖 Documentar endpoints automaticamente com **Swagger/OpenAPI**
+- ⚠️ Tratar exceções globalmente com **Problem Details** (RFC 7807)
 
-## Executando o Projeto
+### Arquitetura
+
+O projeto segue uma arquitetura em camadas bem definida, separando responsabilidades entre API, Domain e Web:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        CLIENT                               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SECURITY FILTER (JWT)                    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      CONTROLLER LAYER                       │
+│              (TicketController, AuthController)             │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                       SERVICE LAYER                         │
+│               (TicketService, UsuarioService)               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      REPOSITORY LAYER                       │
+│             (TicketRepository, UsuarioRepo)                 │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                         MySQL DB                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🛠️ Tecnologias Utilizadas
+
+| Tecnologia | Versão | Descrição |
+|------------|--------|-----------|
+| Java | 17 | Linguagem de programação |
+| Spring Boot | 3.3.1 | Framework principal |
+| Spring Data JPA | - | Persistência de dados |
+| Spring Security | - | Autenticação e autorização |
+| Spring Validation | - | Validação de dados |
+| Auth0 Java JWT | 4.4.0 | Geração e validação de tokens |
+| MySQL | 8.x | Banco de dados relacional |
+| Flyway | - | Controle de versão do banco |
+| Springdoc OpenAPI | 2.0.4 | Documentação da API |
+| Lombok | - | Redução de boilerplate |
+| JUnit 5 | - | Framework de testes |
+| Mockito | - | Mocking para testes |
+| Docker | - | Containerização |
+
+## 📁 Estrutura do Projeto
+
+```
+src/main/java/com/soluevo/entrevista/cinema_ticket/
+├── CinemaTicketApplication.java        # Classe principal
+├── api/
+│   ├── request/
+│   │   └── TicketRequest.java          # DTO de entrada
+│   └── response/
+│       └── TicketResponse.java         # DTO de saída
+├── domain/
+│   ├── handler/
+│   │   ├── GlobalExceptionHandler.java # Handler global de exceções
+│   │   ├── controllerException/        # Exceções do controller
+│   │   └── serviceException/           # Exceções do service
+│   ├── model/
+│   │   └── Ticket.java                 # Entidade JPA
+│   ├── repository/
+│   │   └── TicketRepository.java       # Repositório Spring Data
+│   ├── security/
+│   │   ├── auth/                       # Autenticação (Controller, Service, Filter)
+│   │   └── token/
+│   │       └── TokenKeyService.java    # Serviço de geração de tokens JWT
+│   └── service/
+│       └── TicketService.java          # Lógica de negócio
+└── web/
+    ├── controller/
+    │   └── TicketController.java       # Controller REST
+    └── Mapper/
+        └── TicketMapper.java           # Mapeamento Entity <-> DTO
+```
+
+## ⚙️ Configuração
 
 ### Pré-requisitos
 
-- JDK (Java Development Kit)
-- Maven
-- MySQL Server
+- Java 17+
+- Maven 3.8+
+- MySQL 8.x rodando localmente (porta 3306)
+- Docker (opcional)
 
-### Configuração do Banco de Dados
+### Variáveis de Ambiente
 
-1. Crie um banco de dados MySQL chamado `cinema_tickets`.
-2. Edite o arquivo `application.properties` localizado em `src/main/resources` e configure as credenciais do seu banco de dados:
+Configure o arquivo `application.properties`:
 
-    ```properties
-    spring.datasource.url=jdbc:mysql://localhost:3306/cinema_tickets
-    spring.datasource.username=seu_usuario
-    spring.datasource.password=sua_senha
-    ```
+```properties
+# Servidor
+server.port=8080
 
-### Executando o Projeto
+# Banco de Dados
+spring.datasource.url=jdbc:mysql://localhost:3306/cinema_tickets
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
 
-1. Clone este repositório em sua máquina local.
-2. Navegue até o diretório raiz do projeto.
-3. Execute o seguinte comando para compilar e executar o projeto:
+# JPA
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
 
-    ```bash
-    mvn spring-boot:run
-    ```
+# JWT
+api.security.token.secret=sua-chave-secreta
+```
 
-Isso iniciará a aplicação Spring Boot. Aguarde até ver a mensagem indicando que a aplicação foi iniciada com sucesso.
+> ⚠️ **Importante**: Nunca commite credenciais reais no repositório. Use variáveis de ambiente em produção.
 
-## Documentação da API
+## 🚀 Como Executar
 
-Após a execução do projeto, você pode acessar a documentação da API em:
+### 1. Clone o repositório
+```bash
+git clone https://github.com/seu-usuario/cinema-ticket-api.git
+cd cinema-ticket-api
+```
 
-http://localhost:8080/swagger-ui/index.html
+### 2. Inicie o MySQL
+```bash
+# Usando Docker
+docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cinema_tickets mysql:8
+```
 
+### 3. Execute o projeto
+```bash
+# Windows
+.\mvnw.cmd spring-boot:run
 
-Aqui você encontrará uma visão detalhada de todos os endpoints disponíveis, parâmetros aceitos e exemplos de uso.
+# Linux/Mac
+./mvnw spring-boot:run
+```
 
-Agora você está pronto para começar a explorar e gerenciar seus tickets de cinema de forma eficiente e sem complicações!
+O serviço estará disponível na porta **8080**.
 
+### 🐳 Executando com Docker
 
-## Autor
+```bash
+# Build do projeto
+.\mvnw.cmd clean package -DskipTests
 
-gustavo xavier farias
+# Build da imagem
+docker build -t cinema-ticket-api .
 
-## Licença
+# Execute o container
+docker run -p 8080:8080 cinema-ticket-api
+```
 
-Este projeto está licenciado sob a Licença MIT.
+## 📡 Endpoints da API
+
+### 🎫 Tickets
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/soluevo/cinema/ticket` | Lista todos os tickets |
+| `GET` | `/soluevo/cinema/ticket/{id}` | Busca ticket por ID |
+| `POST` | `/soluevo/cinema/ticket` | Cria um novo ticket |
+| `PUT` | `/soluevo/cinema/ticket/{id}` | Atualiza um ticket |
+| `DELETE` | `/soluevo/cinema/ticket/{id}` | Remove um ticket |
+
+### 🔐 Autenticação
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/login` | Realiza login e retorna token JWT |
+
+## 📨 Formato das Requisições
+
+### Criar/Atualizar Ticket
+
+```json
+{
+    "personName": "João Silva",
+    "cinemaName": "Cinemark",
+    "movieName": "Avatar 3",
+    "hour": "19:30",
+    "sessionDate": "15/03/2026",
+    "roomNumber": 5,
+    "price": 32.50,
+    "ticketType": "inteira",
+    "seat": "F12"
+}
+```
+
+### Login
+
+```json
+{
+    "email": "usuario@email.com",
+    "password": "senha123"
+}
+```
+
+## 🧪 Testes
+
+Execute os testes com:
+
+```bash
+# Windows
+.\mvnw.cmd test
+
+# Linux/Mac
+./mvnw test
+```
+
+Os testes cobrem:
+- **Controller Tests:** Validação dos endpoints REST
+- **Service Tests:** Lógica de negócio
+
+## 🔗 Links Úteis
+
+- 📖 **Swagger UI**: http://localhost:8080/swagger-ui/index.html
+- 🗄️ **API Docs**: http://localhost:8080/v3/api-docs
+
+## 📚 Conceitos Aplicados
+
+1. **API RESTful** com Spring Boot
+2. **Autenticação JWT** com Spring Security
+3. **Persistência de dados** com Spring Data JPA
+4. **Migrations de banco** com Flyway
+5. **Documentação automática** com OpenAPI/Swagger
+6. **Tratamento de exceções** com Problem Details
+7. **Testes unitários** com JUnit e Mockito
+8. **Containerização** com Docker
+
+## 📄 Licença
+
+Este projeto está licenciado sob a **Licença MIT**.
